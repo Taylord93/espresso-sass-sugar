@@ -1,0 +1,465 @@
+<?xml version="1.0"?>
+<syntax name="language-root.sass">
+	<zones>
+		<include collection="comments"/>
+		<include collection="at-rules" />
+		<include collection="at-blocks" />
+		<include collection="selectors" />
+		<include collection="blocks" />
+	</zones>
+	
+	<library>
+		<!-- Simple zones -->
+		<collection name="comments">
+			<zone name="itemize.group-start.comment.block.sass">
+				<starts-with>/\*\s*@group\s</starts-with>
+				<ends-with>\*/</ends-with>
+				 <subzones>
+					<cut-off>\*/</cut-off>
+					<zone name="name">
+						<expression>.+</expression>
+					</zone>
+				</subzones>
+			</zone>
+			<zone name="itemize.group-end.comment.block.sass">
+				<expression>/\*\s*@end\s*([^*]*)\s*\*/</expression>
+			</zone>
+			
+			<!-- Line comments are not valid sass -->
+			<zone name="comment.line.invalid.sass">
+				<starts-with>
+					<expression>//</expression>
+					<capture number="0" name="punctuation.definition.begin"/>
+				</starts-with>
+				<ends-with>$[\n\r]*</ends-with>
+			</zone>
+			
+			<zone name="comment.block.sass">
+				<starts-with>
+					<expression>/\*</expression>
+					<capture number="0" name="punctuation.definition.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\*/</expression>
+					<capture number="0" name="punctuation.definition.end"/>
+				</ends-with>
+			</zone>
+		</collection>
+		
+		<collection name="strings">
+			<zone name="string.quoted">
+				<starts-with>
+					<expression>("|')</expression>
+					<capture number="0" name="punctuation.definition.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\1</expression>
+					<capture number="0" name="punctuation.definition.end"/>
+				</ends-with>
+				<subzones>
+					<zone name="constant.character.escape.sass">
+						<expression>\\.</expression>
+					</zone>
+				</subzones>
+			</zone>
+		</collection>
+		
+		<collection name="selectors">
+			<zone name="at-rule.font-face.selector.sass">
+				<starts-with>
+					<expression>((@)font-face\b)</expression>
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation"/>
+				</starts-with>
+				<ends-with>
+					<expression>(?=\{)</expression>
+				</ends-with>
+			</zone>
+			
+			<zone name="selector.sass">
+				<starts-with>
+					<expression>(?=[^\s{}])</expression>
+				</starts-with>
+				<ends-with>
+					<expression>(?=\{)</expression>
+				</ends-with>
+				<subzones>
+					<include collection="comments"/>
+					<include collection="strings"/>
+					<include collection="pseudo-classes"/>
+					<zone name="punctuation.comma">
+						<expression>,</expression>
+					</zone>
+				</subzones>
+			</zone>
+		</collection>
+		
+		<collection name="pseudo-classes">
+			<zone name="pseudo-class">
+				<expression>(::?)[a-zA-Z-]*(?:\(\S*\))?</expression>
+				<capture number="1" name="punctuation"/>
+			</zone>
+		</collection>
+		
+		<!-- Use this collection when you only need your root-level blocks to only include properties -->
+		<collection name="blocks">
+			<zone name="property-list.block.sass">
+				<starts-with>
+					<expression>\{</expression>
+					<capture number="0" name="punctuation.brace.curly.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\}</expression>
+					<capture number="0" name="punctuation.brace.curly.end"/>
+				</ends-with>
+				<subzones>
+					<include collection="comments" />
+					<include collection="properties" />
+				</subzones>
+			</zone>
+		</collection>
+		
+		<!-- Use this collection when you need to mix a single level of selector blocks with properties (for @page at-block, for instance) -->
+		<collection name="blocks-children">
+			<zone name="property-list.block.sass">
+				<rewind-and-replace selector=":not(punctuation.brace.curly, punctuation.terminator, at-block, property-list, property-value:has-child(punctuation.terminator))">
+					<include collection="selectors" />
+				</rewind-and-replace>
+				<starts-with>
+					<expression>\{</expression>
+					<capture number="0" name="punctuation.brace.curly.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\}</expression>
+					<capture number="0" name="punctuation.brace.curly.end"/>
+				</ends-with>
+				<subzones>
+					<include collection="comments"/>
+					<include collection="strings"/>
+					<include collection="properties" />
+				</subzones>
+			</zone>
+		</collection>
+		
+		<collection name="properties">
+			<!-- Support for sass4-style variables: http://dev.w3.org/sasswg/sass-variables/ -->
+			<zone name="property-name.variable">
+				<starts-with>
+					<expression>(?&lt;![-a-zA-Z])var-</expression>
+				</starts-with>
+				<ends-with>
+					<expression>$|(?![-a-zA-Z])</expression>
+				</ends-with>
+			</zone>
+			<zone name="property-name">
+				<starts-with>
+					<expression>(?&lt;![-a-zA-Z])(?=[-a-zA-Z])</expression>
+				</starts-with>
+				<ends-with>
+					<expression>$|(?![-a-zA-Z])</expression>
+				</ends-with>
+			</zone>
+			<zone name="property-value">
+				<starts-with>
+					<expression>(:)\s*</expression>
+					<capture number="1" name="punctuation.separator.key-value.sass"/>
+				</starts-with>
+				<ends-with>
+					<expression>(;)|(?=\{|\})</expression>
+					<capture number="1" name="punctuation.terminator.rule.sass"/>
+				</ends-with>
+				<subzones>
+					<include collection="property-values" />
+				</subzones>
+			</zone>
+		</collection>
+		
+		<collection name="property-values">
+			<include collection="comments"/>
+			<include collection="strings"/>
+			<zone>
+				<expression>((?:-\s*|\+\s*)?[0-9]+(?:\.[0-9]+)?)((?:px|pt|cm|mm|in|em|ex|pc)\b|%)?|((#)(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b)</expression>
+				<capture number="1" name="constant.numeric.sass"/>
+				<capture number="2" name="keyword.other.unit.sass"/>
+				<capture number="3" name="constant.other.color.rgb-value.sass"/>
+				<capture number="4" name="punctuation"/>
+			</zone>
+			<zone name="support.function.variable-selector.sass">
+				<starts-with>
+					<expression>(var)\s*(\()</expression>
+					<capture number="1" name="name"/>
+					<capture number="2" name="punctuation.brace.round.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\)</expression>
+					<capture number="0" name="punctuation.brace.round.end"/>
+				</ends-with>
+				<subzones>
+					<zone name="variable">
+						<expression>[-a-zA-Z]+</expression>
+					</zone>
+					<zone name="punctuation">
+						<expression>,</expression>
+					</zone>
+				</subzones>
+			</zone>
+			<zone name="support.function.misc.sass">
+				<starts-with>
+					<expression>(url|attr|counters?)\s*(\()</expression>
+					<capture number="1" name="name"/>
+					<capture number="2" name="punctuation.brace.round.begin"/>
+				</starts-with>
+				<ends-with>
+					<expression>\)</expression>
+					<capture number="0" name="punctuation.brace.round.end"/>
+				</ends-with>
+				<subzones>
+					<include collection="strings"/>
+					<zone>
+						<expression>((?:\d{1,3}\s*,\s*){2,3}\d{1,3})|((?:\d{1,3}\s*%,\s*){2}\d{1,3}\s*%)|([^) \t]+)</expression>
+						<capture number="1" name="constant.other.color.rgb-value.sass"/>
+						<capture number="2" name="constant.other.color.rgb-percentage.sass"/>
+						<capture number="3" name="parameter.misc.sass"/>
+					</zone>
+				</subzones>
+			</zone>
+			<zone name="support.function.color.sass">
+				<starts-with>
+					<expression>(rgba?|hsla?)\s*(\()</expression>
+					<capture number="1" name="name"/>
+					<capture number="2" name="punctuation.section.function.sass"/>
+				</starts-with>
+				<ends-with>
+					<expression>\)</expression>
+					<capture number="0" name="punctuation.section.function.sass"/>
+				</ends-with>
+				<subzones>
+					<include collection="strings"/>
+					<zone>
+						<expression>((?:\d{1,3}\s*,\s*){2,3}[.0-9]+)|((?:\d{1,3}\s*%,\s*){2}\d{1,3}\s*%)|([^) \t]+)</expression>
+						<capture number="1" name="constant.other.color.rgb-value.sass"/>
+						<capture number="2" name="constant.other.color.rgb-percentage.sass"/>
+						<capture number="3" name="parameter.misc.sass"/>
+					</zone>
+				</subzones>
+			</zone>
+			<zone name="keyword.important.sass">
+				<expression>\!\s*important</expression>
+			</zone>
+		</collection>
+	
+		<collection name="at-rules">
+			<zone name="at-rule.generic.sass">
+				<starts-with>
+					<expression>((@)charset)|((@)namespace)\s+([\w\s,]*)</expression>
+					<!-- @charset -->
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation"/>
+					<!-- @namespace name -->
+					<capture number="3" name="keyword.control"/>
+					<capture number="4" name="punctuation"/>
+					<capture number="5" name="support.constant"/>
+				</starts-with>
+				<ends-with>
+					<expression>;|$</expression>
+					<capture number="0" name="punctuation.terminator"/>
+				</ends-with>
+				<subzones>
+					<include collection="strings"/>
+				</subzones>
+			</zone>
+			
+			<zone name="at-rule.import.sass">
+				<starts-with>
+					<expression>((@)import\b)\s*</expression>
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation"/>
+				</starts-with>
+				<ends-with>
+					<expression>;|$</expression>
+					<capture number="0" name="punctuation.terminator"/>
+				</ends-with>
+				<subzones>
+					<include collection="strings"/>
+					<zone name="x-url-container">
+						<starts-with>
+							<expression>(url)(\()\s*</expression>
+							<capture number="1" name="support.function.url"/>
+							<capture number="2" name="punctuation.brace.round.begin"/>
+						</starts-with>
+						<ends-with>
+							<expression>\s*(\))\s*</expression>
+							<capture number="1" name="punctuation.brace.round.end"/>
+						</ends-with>
+						<subzones>
+							<include collection="strings"/>
+							<zone name="x-text">
+								<expression>[^)]+</expression>
+							</zone>
+						</subzones>
+					</zone>
+					<zone name="x-text">
+						<expression>[^;]+</expression>
+					</zone>
+				</subzones>
+			</zone>
+		</collection>
+		
+		<collection name="at-blocks">
+			<zone name="at-rule.at-block.media.sass">
+				<starts-with>
+					<expression>((@)media)\s+([^{]*)</expression>
+					<capture number="0" name="x-item-start"/>
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation"/>
+					<capture number="3" name="selector.media-query.sass">
+						<subzones>
+							<include collection="comments" />
+							<include collection="strings" />
+						</subzones>
+					</capture>
+				</starts-with>
+				<ends-with>
+					<expression>(?&lt;=})</expression>
+				</ends-with>
+				<subzones>
+					<include collection="comments"/>
+					<zone name="selector.media-query.sass">
+						<starts-with>(?=[:a-zA-Z])</starts-with>
+						<ends-with>(?=\{)</ends-with>
+						<subzones>
+							<include collection="comments" />
+							<include collection="strings"/>
+						</subzones>
+					</zone>
+					<zone name="block.sass">
+						<starts-with>
+							<expression>\{</expression>
+							<capture number="0" name="punctuation.brace.curly.begin"/>
+						</starts-with>
+						<ends-with>
+							<expression>\}</expression>
+							<capture number="0" name="punctuation.brace.curly.end"/>
+						</ends-with>
+						<subzones>
+							<include collection="comments"/>
+							<include collection="at-blocks" />
+							<include collection="selectors" />
+							<include collection="blocks" />
+						</subzones>
+					</zone>
+				</subzones>
+			</zone>
+			
+			<zone name="at-rule.at-block.keyframes.sass">
+				<starts-with>
+					<expression>((@)(?:-[a-z]+-)?keyframes)\s+([^{]*)</expression>
+					<capture number="0" name="x-item-start"/>
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation"/>
+					<capture number="3" name="selector.keyframe-name.sass">
+						<subzones>
+							<include collection="comments"/>
+							<include collection="strings" />
+						</subzones>
+					</capture>
+				</starts-with>
+				<ends-with>
+					<expression>(?&lt;=})</expression>
+				</ends-with>
+				<subzones>
+					<include collection="comments" />
+					<zone name="selector.keyframe-name.sass">
+						<starts-with>(?=[:a-zA-Z])</starts-with>
+						<ends-with>(?=\{)</ends-with>
+						<subzones>
+							<include collection="comments" />
+							<include collection="strings"/>
+						</subzones>
+					</zone>
+					<zone name="block.keyframes.sass">
+						<starts-with>
+							<expression>\{</expression>
+							<capture number="0" name="punctuation.brace.curly.begin"/>
+						</starts-with>
+						<ends-with>
+							<expression>\}</expression>
+							<capture number="0" name="punctuation.brace.curly.end"/>
+						</ends-with>
+						<subzones>
+							<zone name="selector.keyframe.sass">
+								<starts-with>
+									<expression>(from|to)|([0-9\.]+%)</expression>
+									<capture number="1" name="keyword"/>
+									<capture number="2" name="constant.numeric.percentage"/>
+								</starts-with>
+								<ends-with>(?=\{)</ends-with>
+								<subzones>
+									<include collection="comments"/>
+								</subzones>
+							</zone>
+							<include collection="comments"/>
+							<include collection="selectors" />
+							<include collection="blocks" />
+						</subzones>
+					</zone>
+				</subzones>
+			</zone>
+			
+			<zone name="at-rule.at-block.page.sass">
+				<starts-with>
+					<expression>((@)page)\b(?:\s+([^{]*))?</expression>
+					<capture number="0" name="x-item-start"/>
+					<capture number="1" name="keyword.control"/>
+					<capture number="2" name="punctuation.definition"/>
+					<capture number="3" name="selector.page.sass">
+						<subzones>
+							<include collection="comments" />
+							<include collection="pseudo-classes"/>
+						</subzones>
+					</capture>
+				</starts-with>
+				<ends-with>
+					<expression>(?&lt;=})</expression>
+				</ends-with>
+				<subzones>
+					<include collection="comments"/>
+					<zone name="selector.page.sass">
+						<starts-with>(?=[:a-zA-Z])</starts-with>
+						<ends-with>(?=\{)</ends-with>
+						<subzones>
+							<include collection="comments" />
+							<include collection="pseudo-classes"/>
+						</subzones>
+					</zone>
+					<zone name="block.page.sass">
+						<starts-with>
+							<expression>\{</expression>
+							<capture number="0" name="punctuation.brace.curly.begin"/>
+						</starts-with>
+						<ends-with>
+							<expression>\}</expression>
+							<capture number="0" name="punctuation.brace.curly.end"/>
+						</ends-with>
+						<subzones>
+							<include collection="comments"/>
+							<zone name="selector.at-rule.margin-box.sass">
+								<starts-with>
+									<expression>((@)(?:(?:left|right)-(?:top|middle|bottom)|(?:top|bottom)-(?:(?:left|right)(?:-corner)?|center)))\s+</expression>
+									<capture number="1" name="keyword.control"/>
+									<capture number="2" name="punctuation"/>
+								</starts-with>
+								<ends-with>(?=\{)</ends-with>
+								<subzones>
+									<include collection="comments"/>
+								</subzones>
+							</zone>
+							<include collection="properties" />
+							<include collection="blocks-children" />
+						</subzones>
+					</zone>
+				</subzones>
+			</zone>
+		</collection>
+	</library>
+</syntax>

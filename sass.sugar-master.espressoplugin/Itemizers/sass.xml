@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itemizer language-context="sass">
+
+	<item name="built-in.sass.at-media.collection">
+		<zone itemize-subzones="true">at-rule.media:has-child(x-item-start:capture(name))</zone>
+		<subitems>
+			<include-root-itemizers/>
+		</subitems>
+	</item>
+	
+	<item name="built-in.sass.at-keyframe.collection">
+		<zone itemize-subzones="true">at-rule.keyframes:has-child(x-item-start:capture(name))</zone>
+		<subitems>
+			<include-root-itemizers/>
+		</subitems>
+	</item>
+	
+	<item name="built-in.sass.at-page.collection">
+		<zone-sequence>
+			<zone>at-rule.page > x-item-start:capture(name)</zone>
+			<zone itemize-subzones="true">at-rule.page > block.page</zone>
+		</zone-sequence>
+		<subitems>
+			<include-root-itemizers/>
+		</subitems>
+	</item>
+	
+	<item name="built-in.sass.at-font-face">
+		<zone-sequence>
+			<zone>at-rule.font-face:has-child(keyword.control:capture(name))</zone>
+			<zone>property-list</zone>
+		</zone-sequence>
+	</item>
+
+	<item name="built-in.sass.style">
+		<class>ESStyleItem</class>
+		<zone-sequence>
+			<zone>selector:capture(name)</zone>
+			<zone itemize-subzones="true">property-list</zone>
+		</zone-sequence>
+	</item>
+
+	<item name="built-in.sass.comment">
+		<class>ESCommentItem</class>
+		<zone>comment</zone>
+	</item>
+
+	<item name="built-in.sass.at-import">
+		<class>ESStyleImportItem</class>
+		<zone>at-rule.import</zone>
+	</item>
+	
+	<!-- New -->
+	
+	<item name="built-in.sass.at-mixin.collection">
+		<zone itemize-subzones="true">at-rule.mixin:has-child(x-item-start:capture(name))</zone>
+		<subitems>
+			<include-root-itemizers/>
+		</subitems>
+	</item>
+	
+	<item name="built-in.sass.at-function.collection">
+		<zone itemize-subzones="true">at-rule.function:has-child(x-item-start:capture(name))</zone>
+		<subitems>
+			<include-root-itemizers/>
+		</subitems>
+	</item>
+	
+</itemizer>

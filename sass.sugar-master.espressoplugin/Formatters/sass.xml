@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<formatter id="com.macrabbit.formatting.sass" language-context="sass">
+	
+	<template><![CDATA[
+	#example-style{display:block;float:left;clear:both;}
+	#another-style,#third-style{width:20px;height:10px;}
+	]]></template>
+	
+	<rules>
+		
+		<!-- style {|...|} -->
+		<inside item="built-in.sass.style">
+			<indentation spacing="\t" />
+		</inside>
+		
+		<!-- style {} >|< style {} -->
+		<before zone="selector.sass, group-start" previous-zone="block.sass:not(group-start)">
+			<insert spacing="\n\n" />
+		</before>
+		
+		
+		
+		<!-- selector, >|< other-selector { -->
+		<after zone="selector > punctuation.comma">
+			<insert spacing=" " />
+		</after>
+		
+		<!-- selector >|< { -->
+		<before zone="block.sass:not(comment)">
+			<insert spacing=" " />
+		</before>
+		
+		<!-- selector { >|< property: value; } -->
+		<after zone="block.sass:not(comment) > punctuation.begin">
+			<insert spacing="\n" />
+		</after>
+		
+		<!-- selector { property: value; >|< } -->
+		<before zone="block.sass:not(comment) > punctuation.end">
+			<indentation id="sass.pre-close-bracket" />
+			<insert spacing="\n" />
+		</before>
+		
+		<!-- property >|< : value; -->
+		<before zone="property-value > punctuation.separator">
+			<insert spacing="" />
+		</before>
+		
+		<!-- property: >|< value; -->
+		<after zone="property-value > punctuation.separator">
+			<insert spacing=" " />
+		</after>
+		
+		<!-- property: value >|< ; -->
+		<before zone="property-value > punctuation.terminator">
+			<insert spacing="" />
+		</before>
+		
+		<!-- ... >|< property: value; -->
+		<before zone="property-name" previous-zone="*:not(punctuation.begin)">
+			<insert spacing="\n" />
+		</before>
+		
+		
+		
+		<!-- Group formatting (currently hard-coded) -->
+		
+		<after zone="group-start">
+			<insert spacing="\n\n" />
+		</after>
+		
+		<before zone="group-end">
+			<insert spacing="\n\n" />
+		</before>
+		
+		<inside item="built-in.sass.style">
+			<indentation spacing="\t\t" />
+		</inside>
+		
+	</rules>
+</formatter>

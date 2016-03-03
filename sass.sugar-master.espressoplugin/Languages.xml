@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings>
+
+	<language id="espresso.default.sass">
+		
+		<syntax-name>language-root.sass</syntax-name>
+		<name>sass</name>
+		<detectors>
+			<extension>scss</extension>
+			<extension>sass</extension>
+			<extension>less</extension>
+			
+			<match-content lines="1">(?i)/\*\s*@override</match-content>
+		</detectors>
+		
+		<default-extension>sass</default-extension>
+		<default-mime-type>text/sass</default-mime-type>
+		
+	</language>
+	
+</settings>

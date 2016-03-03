@@ -1,0 +1,57 @@
+@import 'things';
+
+:root {
+	var-black: #000;
+}
+
+.black-var {
+	color: var(black);
+}
+
+@font-face {
+	font-family: DeliciousRomanRegular;
+	src: url(/Delicious-Roman-R.otf);
+}
+
+@-webkit-keyframes 'attention' {
+	0% {
+		border-color: rgba(100, 150, 255, .5);
+		-webkit-box-shadow: inset 0 0 1px rgba(100, 150, 255, .3);
+	}
+	100% {
+		border-color: rgba(100, 150, 255, 1);
+		-webkit-box-shadow: inset 0 0 10px rgba(100, 150, 255, 1);
+	}
+}
+
+@media print {
+	.stuff {
+		color: red;
+	}
+	
+	.things {
+		width: 14px;
+	}
+}
+
+.stuff[type='input'] {
+	/* comment */
+	width: 30px;
+}
+
+@page {
+    margin: 0.5in;
+    padding: 1em;
+
+    @bottom-right {
+        content: counter(page);
+        font-family: ConfluenceInstalledFont, Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+    }
+
+    @bottom-left {
+        content: "Some text";
+        font-family: ConfluenceInstalledFont, Helvetica, Arial, sans-serif;
+        font-size: 8pt;
+    }
+}

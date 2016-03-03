@@ -1,0 +1,33 @@
+/*
+	@theme sass Placeholder
+	@placeholder sass
+*/
+
+sass {
+	spell-check: disabled;
+}
+
+sass.selector, sass.selector entity punctuation {
+	color: #3a77bf;
+}
+
+sass property-name {
+	color: #d4430d;
+}
+
+sass property-name.variable {
+	font-weight: bold;
+}
+
+sass property-value {
+	color: #43a202;
+}
+
+sass.at-rule string, sass.at-rule string punctuation, media.sass > block > punctuation, property-list.sass > property-value > punctuation {
+	color: #474747;
+}
+
+keyword.important.sass {
+	font-weight: bold;
+	color: #6700b9;
+}
